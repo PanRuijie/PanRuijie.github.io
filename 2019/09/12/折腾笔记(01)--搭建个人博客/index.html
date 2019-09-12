@@ -55,18 +55,18 @@
   };
 </script>
 
-  <meta name="description" content="生命在于折腾，从零开始的搭建博客一、搭建个人博客 本文主要是基于Node.js框架下利用github使用hexo搭建了一个个人的静态网页博客，搭建个人博客的过程主要参考了韦阳的博客，并且对该博客的内容进行了补充和细化">
+  <meta name="description" content="生命在于折腾，从零开始手把手教你如何搭建一个酷炫的属于自己的博客！">
 <meta name="keywords" content="折腾笔记">
 <meta property="og:type" content="article">
 <meta property="og:title" content="折腾笔记(01)--搭建个人博客">
 <meta property="og:url" content="http://yoursite.com/2019/09/12/折腾笔记(01)--搭建个人博客/index.html">
 <meta property="og:site_name" content="小潘潘的博客">
-<meta property="og:description" content="生命在于折腾，从零开始的搭建博客一、搭建个人博客 本文主要是基于Node.js框架下利用github使用hexo搭建了一个个人的静态网页博客，搭建个人博客的过程主要参考了韦阳的博客，并且对该博客的内容进行了补充和细化">
+<meta property="og:description" content="生命在于折腾，从零开始手把手教你如何搭建一个酷炫的属于自己的博客！">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-09-12T09:18:07.094Z">
+<meta property="og:updated_time" content="2019-09-12T09:55:07.127Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="折腾笔记(01)--搭建个人博客">
-<meta name="twitter:description" content="生命在于折腾，从零开始的搭建博客一、搭建个人博客 本文主要是基于Node.js框架下利用github使用hexo搭建了一个个人的静态网页博客，搭建个人博客的过程主要参考了韦阳的博客，并且对该博客的内容进行了补充和细化">
+<meta name="twitter:description" content="生命在于折腾，从零开始手把手教你如何搭建一个酷炫的属于自己的博客！">
   <link rel="canonical" href="http://yoursite.com/2019/09/12/折腾笔记(01)--搭建个人博客/">
 
 
@@ -257,7 +257,7 @@
                 
               
 
-              <time title="创建时间：2019-09-12 17:04:40 / 修改时间：17:18:07" itemprop="dateCreated datePublished" datetime="2019-09-12T17:04:40+08:00">2019-09-12</time>
+              <time title="创建时间：2019-09-12 17:04:40 / 修改时间：17:55:07" itemprop="dateCreated datePublished" datetime="2019-09-12T17:04:40+08:00">2019-09-12</time>
             </span>
           
             
@@ -276,11 +276,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="生命在于折腾，从零开始的搭建博客"><a href="#生命在于折腾，从零开始的搭建博客" class="headerlink" title="生命在于折腾，从零开始的搭建博客"></a>生命在于折腾，从零开始的搭建博客</h1><h2 id="一、搭建个人博客"><a href="#一、搭建个人博客" class="headerlink" title="一、搭建个人博客"></a>一、搭建个人博客</h2><blockquote>
-<p>本文主要是基于Node.js框架下利用github使用hexo搭建了一个个人的静态网页博客，搭建个人博客的过程主要参考了<a href="https://godweiyang.com/2018/04/13/hexo-blog/" target="_blank" rel="noopener">韦阳的博客</a>，并且对该博客的内容进行了补充和细化</p>
-</blockquote>
+        <p>生命在于折腾，从零开始手把手教你如何搭建一个酷炫的属于自己的博客！</p>
 <a id="more"></a>
 
+
+<h2 id="一、搭建个人博客"><a href="#一、搭建个人博客" class="headerlink" title="一、搭建个人博客"></a>一、搭建个人博客</h2><blockquote>
+<p>本文主要是基于Node.js框架下利用github使用hexo搭建了一个个人的静态网页博客，搭建个人博客的过程主要参考了<a href="https://godweiyang.com/2018/04/13/hexo-blog/" target="_blank" rel="noopener">韦阳的博客</a>，相当于对该博客的内容进行了补充和细化</p>
+</blockquote>
 <h3 id="1-1-下载安装Node-js"><a href="#1-1-下载安装Node-js" class="headerlink" title="1.1 下载安装Node.js"></a>1.1 下载安装Node.js</h3><p>在Node.js官网下载64位稳定版的安装包，安装时全按照默认选项点next，最后在cmd中输入<code>npm -v</code>和<code>node -v</code>出现版本号相关信息说明安装成功</p>
 <p>如果默认源速度较慢，可以添加国内镜像源，在cmd内输入</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm config set registry https://registry.npm.taobao.org</span><br></pre></td></tr></table></figure>
@@ -329,7 +331,16 @@
 <blockquote>
 <p>以下内容均是根据hexo的nexT主题进行个性化配置，并不一定保证对于其他主题同样适用</p>
 </blockquote>
-<h3 id="2-2-语言切换"><a href="#2-2-语言切换" class="headerlink" title="2.2 语言切换"></a>2.2 语言切换</h3>
+<h3 id="2-2-摘要与显示“全文阅读”"><a href="#2-2-摘要与显示“全文阅读”" class="headerlink" title="2.2 摘要与显示“全文阅读”"></a>2.2 摘要与显示“全文阅读”</h3><p>默认情况下hexo博客(如本站)的首页显示的是完整的文章，而文章比较长的时候这无疑会带来诸多不遍。因此最好使用摘要，hexo对摘要的支持非常好，只要在文章的md文件中加入一行代码即可：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">这就是一个简介</span><br><span class="line"> </span><br><span class="line">&lt;!-- more --&gt;</span><br><span class="line"> </span><br><span class="line">这里更多的内容</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>注意：这个占位符只能另起一行，不能放在行内</p>
+</blockquote>
+<h3 id="2-3-隐藏网页底部powered-By-Hexo-强力驱动"><a href="#2-3-隐藏网页底部powered-By-Hexo-强力驱动" class="headerlink" title="2.3 隐藏网页底部powered By Hexo / 强力驱动"></a>2.3 隐藏网页底部powered By Hexo / 强力驱动</h3><p>nexT自带的“由 Hexo 强力驱动 v3.9.0 | 主题 – NexT.Gemini v7.4.0”看起来不够美观，解决方法是打开<code>themes/next/layout/_partials/footer.swig</code>,使用<!--与-->隐藏对应的代码即可，或者直接删除，具体的代码块为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">&#123;%- if theme.footer.powered.enable %&#125;</span><br><span class="line">  &lt;div class=&quot;powered-by&quot;&gt;&#123;#</span><br><span class="line">  #&#125;&#123;&#123; __(&apos;footer.powered&apos;, next_url(&apos;https://hexo.io&apos;, &apos;Hexo&apos;, &#123;class: &apos;theme-link&apos;&#125;)) &#125;&#125;&#123;#</span><br><span class="line">  #&#125;&#123;%- if theme.footer.powered.version %&#125; v&#123;&#123; hexo_env(&apos;version&apos;) &#125;&#125;&#123;%- endif %&#125;&#123;#</span><br><span class="line"> #&#125;&lt;/div&gt;</span><br><span class="line">&#123;%- endif %&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#123;%- if theme.footer.powered.enable and theme.footer.theme.enable %&#125;</span><br><span class="line">  &lt;span class=&quot;post-meta-divider&quot;&gt;|&lt;/span&gt;</span><br><span class="line">&#123;%- endif %&#125;</span><br><span class="line"></span><br><span class="line">&#123;%- if theme.footer.theme.enable %&#125;</span><br><span class="line">  &lt;div class=&quot;theme-info&quot;&gt;&#123;#</span><br><span class="line">  #&#125;&#123;&#123; __(&apos;footer.theme&apos;) &#125;&#125; – &#123;&#123; next_url(&apos;https://theme-next.org&apos;, &apos;NexT.&apos; + theme.scheme, &#123;class: &apos;theme-link&apos;&#125;) &#125;&#125;&#123;#</span><br><span class="line">  #&#125;&#123;%- if theme.footer.theme.version %&#125; v&#123;&#123; version &#125;&#125;&#123;%- endif %&#125;&#123;#</span><br><span class="line">#&#125;&lt;/div&gt;</span><br><span class="line">&#123;%- endif %&#125;</span><br></pre></td></tr></table></figure>
+
+
     </div>
 
     
@@ -411,7 +422,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#生命在于折腾，从零开始的搭建博客"><span class="nav-number">1.</span> <span class="nav-text">生命在于折腾，从零开始的搭建博客</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、搭建个人博客"><span class="nav-number">1.1.</span> <span class="nav-text">一、搭建个人博客</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-下载安装Node-js"><span class="nav-number">1.1.1.</span> <span class="nav-text">1.1 下载安装Node.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-安装Git"><span class="nav-number">1.1.2.</span> <span class="nav-text">1.2 安装Git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-配置github"><span class="nav-number">1.1.3.</span> <span class="nav-text">1.3 配置github</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-安装Hexo"><span class="nav-number">1.1.4.</span> <span class="nav-text">1.4 安装Hexo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、个性化配置"><span class="nav-number">1.2.</span> <span class="nav-text">二、个性化配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-主题切换"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 主题切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-语言切换"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 语言切换</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、搭建个人博客"><span class="nav-number">1.</span> <span class="nav-text">一、搭建个人博客</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-下载安装Node-js"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 下载安装Node.js</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-安装Git"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 安装Git</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-配置github"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 配置github</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-安装Hexo"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 安装Hexo</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、个性化配置"><span class="nav-number">2.</span> <span class="nav-text">二、个性化配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-主题切换"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 主题切换</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-摘要与显示“全文阅读”"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 摘要与显示“全文阅读”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-隐藏网页底部powered-By-Hexo-强力驱动"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 隐藏网页底部powered By Hexo / 强力驱动</span></a></li></ol></li></ol></div>
         
       </div>
       <!--/noindex-->
@@ -486,9 +497,12 @@
   </span>
   <span class="author" itemprop="copyrightHolder">小潘潘</span>
 </div>
+
+<!--
   <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
   <span class="post-meta-divider">|</span>
   <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.0</div>
+-->
 
         
 
