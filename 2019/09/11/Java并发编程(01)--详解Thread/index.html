@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.4.0">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="从Thread的创建说起，深入源码解析底层原理">
+<meta name="keywords" content="java基础,并发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java并发编程(01)--详解Thread">
+<meta property="og:url" content="http://yoursite.com/2019/09/11/Java并发编程(01)--详解Thread/index.html">
+<meta property="og:site_name" content="小潘潘的博客">
+<meta property="og:description" content="从Thread的创建说起，深入源码解析底层原理">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-15T06:44:18.073Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java并发编程(01)--详解Thread">
+<meta name="twitter:description" content="从Thread的创建说起，深入源码解析底层原理">
+  <link rel="canonical" href="http://yoursite.com/2019/09/11/Java并发编程(01)--详解Thread/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Java并发编程(01)--详解Thread | 小潘潘的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小潘潘的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/11/Java并发编程(01)--详解Thread/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小潘潘">
+      <meta itemprop="description" content="当你失败的时候，说什么都像是借口">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小潘潘的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Java并发编程(01)--详解Thread
+
+          
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-11 00:00:00" itemprop="dateCreated datePublished" datetime="2019-09-11T00:00:00+08:00">2019-09-11</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-15 14:44:18" itemprop="dateModified" datetime="2019-09-15T14:44:18+08:00">2019-09-15</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Java并发编程/" itemprop="url" rel="index"><span itemprop="name">Java并发编程</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>25k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>23 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>从Thread的创建说起，深入源码解析底层原理</p>
+<a id="more"></a>
+
+<h2 id="一、线程类"><a href="#一、线程类" class="headerlink" title="一、线程类"></a>一、线程类</h2><h3 id="1-1-创建线程"><a href="#1-1-创建线程" class="headerlink" title="1.1 创建线程"></a>1.1 创建线程</h3><p>Java使用Thread类代表线程，所有的线程对象都必须是Thread类或其子类的实例。Java可以用三种方式来创建线程：</p>
+<ul>
+<li>继承<code>Thread</code>类创建线程</li>
+<li>实现<code>Runnable</code>接口创建线程</li>
+<li>使用<code>Callable</code>和<code>Future</code>创建线程</li>
+</ul>
+<p>创建线程的三种方式的对比：</p>
+<ul>
+<li>采用实现Runnable、Callable接口的方式创建多线程的优缺点： <ul>
+<li>优势：线程类只是实现了Runnable接口与Callable接口，还可以继承其他类。 在这种方式下，多个线程可以共享一个target对象，所以非常适合多个相同线程来处理同一份资源的情况，从而可以将CPU、代码和数据分开，形成清晰的模型，较好地体现了面向对象的思想。 </li>
+<li>劣势：编程稍稍复杂，如果需要访问当前线程，则必须使用Thread.currentThread（）方法。 </li>
+</ul>
+</li>
+<li>采用继承Thread类的方法创建多线程的优缺点： <ul>
+<li>优势：编写简单，如果需要访问当前线程，则无须使用Thread.currentThread（）方法，直接使用this即可获得当前线程。</li>
+<li>劣势：因为线程类已经继承了Thread类，所以不能再继承其他父类。 </li>
+</ul>
+</li>
+</ul>
+<p>Callable和Runable接口的区别：</p>
+<ul>
+<li>事实上，Callable功能比Runable强大，提供两个Runable没有能够提供的功能</li>
+<li>一方面，Callable能够获取线程执行结果的返回值而Runable不行</li>
+<li>另一方面，Callable允许抛出异常而Runable不行</li>
+</ul>
+<h3 id="1-2-Runable接口详解："><a href="#1-2-Runable接口详解：" class="headerlink" title="1.2 Runable接口详解："></a>1.2 Runable接口详解：</h3><blockquote>
+<p>如果没有特殊说明，所有的源码分析都是基于JDK10</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.lang;</span><br><span class="line"></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * When an object implementing interface &lt;code&gt;Runnable&lt;/code&gt; is used</span></span><br><span class="line"><span class="comment">     * to create a thread, starting the thread causes the object's</span></span><br><span class="line"><span class="comment">     * &lt;code&gt;run&lt;/code&gt; method to be called in that separately executing</span></span><br><span class="line"><span class="comment">     * thread.</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;</span></span><br><span class="line"><span class="comment">     * The general contract of the method &lt;code&gt;run&lt;/code&gt; is that it may</span></span><br><span class="line"><span class="comment">     * take any action whatsoever.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@see</span>     java.lang.Thread#run()</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p> Runable其实是一个很简单的接口，里面只有一个抽象的run方法，实现了该接口表示实现该接口的类的实例对象准备被一个线程作为任务进行执行</p>
+<p>通过继承Thread类，重写其run方法，在本质上也是实现了Runable接口，重写其run方法。因为Thread类也是实现了该接口</p>
+<p>最后运行的方式是：调用线程的start方法，线程会在操作系统的调度下选择合适的时间执行传入的对象的run方法</p>
+<h3 id="1-3-Callable接口详解"><a href="#1-3-Callable接口详解" class="headerlink" title="1.3 Callable接口详解"></a>1.3 Callable接口详解</h3><h4 id="1-3-1-Callable源码"><a href="#1-3-1-Callable源码" class="headerlink" title="1.3.1 Callable源码"></a>1.3.1 Callable源码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Callable</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Computes a result, or throws an exception if unable to do so.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> computed result</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> Exception if unable to compute a result</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">V <span class="title">call</span><span class="params">()</span> <span class="keyword">throws</span> Exception</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Callable同样是一个非常简单的接口，其内部只有定义了一个类似于Runable的run方法的call方法，不同点是返回值为泛型V，且允许抛出异常</p>
+<p>实际使用时，Callable一般是搭配FutureTask使用或者一个类实现Callable接口，重写call方法，作为一个任务被传入</p>
+<h4 id="1-3-2-Future源码"><a href="#1-3-2-Future源码" class="headerlink" title="1.3.2 Future源码"></a>1.3.2 Future源码</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">Future</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Attempts to cancel execution of this task.  This attempt will</span></span><br><span class="line"><span class="comment">     * fail if the task has already completed, has already been cancelled,</span></span><br><span class="line"><span class="comment">     * or could not be cancelled for some other reason. If successful,</span></span><br><span class="line"><span class="comment">     * and this task has not started when &#123;<span class="doctag">@code</span> cancel&#125; is called,</span></span><br><span class="line"><span class="comment">     * this task should never run.  If the task has already started,</span></span><br><span class="line"><span class="comment">     * then the &#123;<span class="doctag">@code</span> mayInterruptIfRunning&#125; parameter determines</span></span><br><span class="line"><span class="comment">     * whether the thread executing this task should be interrupted in</span></span><br><span class="line"><span class="comment">     * an attempt to stop the task.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;After this method returns, subsequent calls to &#123;<span class="doctag">@link</span> #isDone&#125; will</span></span><br><span class="line"><span class="comment">     * always return &#123;<span class="doctag">@code</span> true&#125;.  Subsequent calls to &#123;<span class="doctag">@link</span> #isCancelled&#125;</span></span><br><span class="line"><span class="comment">     * will always return &#123;<span class="doctag">@code</span> true&#125; if this method returned &#123;<span class="doctag">@code</span> true&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> mayInterruptIfRunning &#123;<span class="doctag">@code</span> true&#125; if the thread executing this</span></span><br><span class="line"><span class="comment">     * task should be interrupted; otherwise, in-progress tasks are allowed</span></span><br><span class="line"><span class="comment">     * to complete</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> &#123;<span class="doctag">@code</span> false&#125; if the task could not be cancelled,</span></span><br><span class="line"><span class="comment">     * typically because it has already completed normally;</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@code</span> true&#125; otherwise</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">cancel</span><span class="params">(<span class="keyword">boolean</span> mayInterruptIfRunning)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Returns &#123;<span class="doctag">@code</span> true&#125; if this task was cancelled before it completed</span></span><br><span class="line"><span class="comment">     * normally.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> &#123;<span class="doctag">@code</span> true&#125; if this task was cancelled before it completed</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isCancelled</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Returns &#123;<span class="doctag">@code</span> true&#125; if this task completed.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * Completion may be due to normal termination, an exception, or</span></span><br><span class="line"><span class="comment">     * cancellation -- in all of these cases, this method will return</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@code</span> true&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> &#123;<span class="doctag">@code</span> true&#125; if this task completed</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">isDone</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Waits if necessary for the computation to complete, and then</span></span><br><span class="line"><span class="comment">     * retrieves its result.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the computed result</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> CancellationException if the computation was cancelled</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> ExecutionException if the computation threw an</span></span><br><span class="line"><span class="comment">     * exception</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> InterruptedException if the current thread was interrupted</span></span><br><span class="line"><span class="comment">     * while waiting</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Waits if necessary for at most the given time for the computation</span></span><br><span class="line"><span class="comment">     * to complete, and then retrieves its result, if available.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timeout the maximum time to wait</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> unit the time unit of the timeout argument</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> the computed result</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> CancellationException if the computation was cancelled</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> ExecutionException if the computation threw an</span></span><br><span class="line"><span class="comment">     * exception</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> InterruptedException if the current thread was interrupted</span></span><br><span class="line"><span class="comment">     * while waiting</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> TimeoutException if the wait timed out</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function">V <span class="title">get</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InterruptedException, ExecutionException, TimeoutException</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>Future</code>接口表示一个异步计算的结果，它提供了五个方法：</p>
+<ul>
+<li><code>boolean cancel(boolean mayInterruptIfRunning)</code> ：尝试着去取消异步计算的过程，当发生该过程无法被取消、该过程已经计算完、该过程已经被取消等情况时都会返回false，如果返回true表示取消成功，又有多种情况：如果是还没执行过就被成功取消，则表示从未运行过该任务，如果是正在运行中，则根据传入的变量决定是否取消该任务</li>
+<li><code>boolean isCancelled()</code>：判断异步计算是否在完成前被取消，如果是的返回true否则返回false</li>
+<li><code>boolean isDone()</code>：判断异步计算的过程是否结束而无论因何结束，比如即使是因为抛出异常或者被取消，仍然是结束了，返回true</li>
+<li><code>V get() throws InterruptedException, ExecutionException</code> 和 <code>V get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,TimeoutException</code>：前者表示阻塞着直到获取到结果，后者表示至多等待<code>timeout</code>这么长时间，要么获取到结果要么抛出<code>TimeoutException</code>异常</li>
+</ul>
+<h4 id="1-3-3-FutureTask源码"><a href="#1-3-3-FutureTask源码" class="headerlink" title="1.3.3 FutureTask源码"></a>1.3.3 <code>FutureTask</code>源码</h4><p><code>FutureTask</code>详解：</p>
+<ul>
+<li><code>FutureTask</code>实现了<code>RunnableFuture</code>接口，<code>RunnableFuture</code>接口继承了<code>Runnable</code>和<code>Future</code>两个接口</li>
+<li>由于<code>FutureTask</code>类同时实现了两个接口，所以它既可以作为<code>Runnable</code>被线程执行，又可以作为<code>Future</code>得到<code>Callable</code>的返回值</li>
+<li>使用方法为：<ol>
+<li>首先构建一个实现类实现<code>Callable</code>接口，重写其<code>call</code>方法，把要异步执行的任务写进去</li>
+<li>其次实例化该实现了获得一个<code>Callable</code>对象A</li>
+<li>再实例化一个<code>FutureTask</code>类的对象B，其传入的参数就是A</li>
+<li>接着调用B的<code>start</code>方法开始执行</li>
+<li>最后通过A的<code>get</code>方法得到返回值</li>
+</ol>
+</li>
+<li><code>FutureTask</code>是常用的实现类</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> java.util.concurrent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.invoke.MethodHandles;</span><br><span class="line"><span class="keyword">import</span> java.lang.invoke.VarHandle;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.locks.LockSupport;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">FutureTask</span>&lt;<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">RunnableFuture</span>&lt;<span class="title">V</span>&gt; </span>&#123;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     * Revision notes: This differs from previous versions of this</span></span><br><span class="line"><span class="comment">     * class that relied on AbstractQueuedSynchronizer, mainly to</span></span><br><span class="line"><span class="comment">     * avoid surprising users about retaining interrupt status during</span></span><br><span class="line"><span class="comment">     * cancellation races. Sync control in the current design relies</span></span><br><span class="line"><span class="comment">     * on a "state" field updated via CAS to track completion, along</span></span><br><span class="line"><span class="comment">     * with a simple Treiber stack to hold waiting threads.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * The run state of this task, initially NEW.  The run state</span></span><br><span class="line"><span class="comment">     * transitions to a terminal state only in methods set,</span></span><br><span class="line"><span class="comment">     * setException, and cancel.  During completion, state may take on</span></span><br><span class="line"><span class="comment">     * transient values of COMPLETING (while outcome is being set) or</span></span><br><span class="line"><span class="comment">     * INTERRUPTING (only while interrupting the runner to satisfy a</span></span><br><span class="line"><span class="comment">     * cancel(true)). Transitions from these intermediate to final</span></span><br><span class="line"><span class="comment">     * states use cheaper ordered/lazy writes because values are unique</span></span><br><span class="line"><span class="comment">     * and cannot be further modified.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * Possible state transitions:</span></span><br><span class="line"><span class="comment">     * NEW -&gt; COMPLETING -&gt; NORMAL</span></span><br><span class="line"><span class="comment">     * NEW -&gt; COMPLETING -&gt; EXCEPTIONAL</span></span><br><span class="line"><span class="comment">     * NEW -&gt; CANCELLED</span></span><br><span class="line"><span class="comment">     * NEW -&gt; INTERRUPTING -&gt; INTERRUPTED</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> state;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> NEW          = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> COMPLETING   = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> NORMAL       = <span class="number">2</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> EXCEPTIONAL  = <span class="number">3</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CANCELLED    = <span class="number">4</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> INTERRUPTING = <span class="number">5</span>;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> INTERRUPTED  = <span class="number">6</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** The underlying callable; nulled out after running */</span></span><br><span class="line">    <span class="keyword">private</span> Callable&lt;V&gt; callable;</span><br><span class="line">    <span class="comment">/** The result to return or exception to throw from get() */</span></span><br><span class="line">    <span class="keyword">private</span> Object outcome; <span class="comment">// non-volatile, protected by state reads/writes</span></span><br><span class="line">    <span class="comment">/** The thread running the callable; CASed during run() */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Thread runner;</span><br><span class="line">    <span class="comment">/** Treiber stack of waiting threads */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> WaitNode waiters;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Returns result or throws exception for completed task.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> s completed state value</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="function"><span class="keyword">private</span> V <span class="title">report</span><span class="params">(<span class="keyword">int</span> s)</span> <span class="keyword">throws</span> ExecutionException </span>&#123;</span><br><span class="line">        Object x = outcome;</span><br><span class="line">        <span class="keyword">if</span> (s == NORMAL)</span><br><span class="line">            <span class="keyword">return</span> (V)x;</span><br><span class="line">        <span class="keyword">if</span> (s &gt;= CANCELLED)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> CancellationException();</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ExecutionException((Throwable)x);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Creates a &#123;<span class="doctag">@code</span> FutureTask&#125; that will, upon running, execute the</span></span><br><span class="line"><span class="comment">     * given &#123;<span class="doctag">@code</span> Callable&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span>  callable the callable task</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> NullPointerException if the callable is null</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FutureTask</span><span class="params">(Callable&lt;V&gt; callable)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (callable == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        <span class="keyword">this</span>.callable = callable;</span><br><span class="line">        <span class="keyword">this</span>.state = NEW;       <span class="comment">// ensure visibility of callable</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Creates a &#123;<span class="doctag">@code</span> FutureTask&#125; that will, upon running, execute the</span></span><br><span class="line"><span class="comment">     * given &#123;<span class="doctag">@code</span> Runnable&#125;, and arrange that &#123;<span class="doctag">@code</span> get&#125; will return the</span></span><br><span class="line"><span class="comment">     * given result on successful completion.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> runnable the runnable task</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> result the result to return on successful completion. If</span></span><br><span class="line"><span class="comment">     * you don't need a particular result, consider using</span></span><br><span class="line"><span class="comment">     * constructions of the form:</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@code</span> Future&lt;?&gt; f = new FutureTask&lt;Void&gt;(runnable, null)&#125;</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> NullPointerException if the runnable is null</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">FutureTask</span><span class="params">(Runnable runnable, V result)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.callable = Executors.callable(runnable, result);</span><br><span class="line">        <span class="keyword">this</span>.state = NEW;       <span class="comment">// ensure visibility of callable</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isCancelled</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> state &gt;= CANCELLED;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isDone</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> state != NEW;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">cancel</span><span class="params">(<span class="keyword">boolean</span> mayInterruptIfRunning)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!(state == NEW &amp;&amp; STATE.compareAndSet</span><br><span class="line">              (<span class="keyword">this</span>, NEW, mayInterruptIfRunning ? INTERRUPTING : CANCELLED)))</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;    <span class="comment">// in case call to interrupt throws exception</span></span><br><span class="line">            <span class="keyword">if</span> (mayInterruptIfRunning) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    Thread t = runner;</span><br><span class="line">                    <span class="keyword">if</span> (t != <span class="keyword">null</span>)</span><br><span class="line">                        t.interrupt();</span><br><span class="line">                &#125; <span class="keyword">finally</span> &#123; <span class="comment">// final state</span></span><br><span class="line">                    STATE.setRelease(<span class="keyword">this</span>, INTERRUPTED);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            finishCompletion();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> CancellationException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException, ExecutionException </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> s = state;</span><br><span class="line">        <span class="keyword">if</span> (s &lt;= COMPLETING)</span><br><span class="line">            s = awaitDone(<span class="keyword">false</span>, <span class="number">0L</span>);</span><br><span class="line">        <span class="keyword">return</span> report(s);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@throws</span> CancellationException &#123;<span class="doctag">@inheritDoc</span>&#125;</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">(<span class="keyword">long</span> timeout, TimeUnit unit)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InterruptedException, ExecutionException, TimeoutException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (unit == <span class="keyword">null</span>)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">        <span class="keyword">int</span> s = state;</span><br><span class="line">        <span class="keyword">if</span> (s &lt;= COMPLETING &amp;&amp;</span><br><span class="line">            (s = awaitDone(<span class="keyword">true</span>, unit.toNanos(timeout))) &lt;= COMPLETING)</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> TimeoutException();</span><br><span class="line">        <span class="keyword">return</span> report(s);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Protected method invoked when this task transitions to state</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@code</span> isDone&#125; (whether normally or via cancellation). The</span></span><br><span class="line"><span class="comment">     * default implementation does nothing.  Subclasses may override</span></span><br><span class="line"><span class="comment">     * this method to invoke completion callbacks or perform</span></span><br><span class="line"><span class="comment">     * bookkeeping. Note that you can query status inside the</span></span><br><span class="line"><span class="comment">     * implementation of this method to determine whether this task</span></span><br><span class="line"><span class="comment">     * has been cancelled.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">done</span><span class="params">()</span> </span>&#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Sets the result of this future to the given value unless</span></span><br><span class="line"><span class="comment">     * this future has already been set or has been cancelled.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;This method is invoked internally by the &#123;<span class="doctag">@link</span> #run&#125; method</span></span><br><span class="line"><span class="comment">     * upon successful completion of the computation.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> v the value</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(V v)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (STATE.compareAndSet(<span class="keyword">this</span>, NEW, COMPLETING)) &#123;</span><br><span class="line">            outcome = v;</span><br><span class="line">            STATE.setRelease(<span class="keyword">this</span>, NORMAL); <span class="comment">// final state</span></span><br><span class="line">            finishCompletion();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Causes this future to report an &#123;<span class="doctag">@link</span> ExecutionException&#125;</span></span><br><span class="line"><span class="comment">     * with the given throwable as its cause, unless this future has</span></span><br><span class="line"><span class="comment">     * already been set or has been cancelled.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * &lt;p&gt;This method is invoked internally by the &#123;<span class="doctag">@link</span> #run&#125; method</span></span><br><span class="line"><span class="comment">     * upon failure of the computation.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> t the cause of failure</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">setException</span><span class="params">(Throwable t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (STATE.compareAndSet(<span class="keyword">this</span>, NEW, COMPLETING)) &#123;</span><br><span class="line">            outcome = t;</span><br><span class="line">            STATE.setRelease(<span class="keyword">this</span>, EXCEPTIONAL); <span class="comment">// final state</span></span><br><span class="line">            finishCompletion();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (state != NEW ||</span><br><span class="line">            !RUNNER.compareAndSet(<span class="keyword">this</span>, <span class="keyword">null</span>, Thread.currentThread()))</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Callable&lt;V&gt; c = callable;</span><br><span class="line">            <span class="keyword">if</span> (c != <span class="keyword">null</span> &amp;&amp; state == NEW) &#123;</span><br><span class="line">                V result;</span><br><span class="line">                <span class="keyword">boolean</span> ran;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    result = c.call();</span><br><span class="line">                    ran = <span class="keyword">true</span>;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                    result = <span class="keyword">null</span>;</span><br><span class="line">                    ran = <span class="keyword">false</span>;</span><br><span class="line">                    setException(ex);</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (ran)</span><br><span class="line">                    set(result);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// runner must be non-null until state is settled to</span></span><br><span class="line">            <span class="comment">// prevent concurrent calls to run()</span></span><br><span class="line">            runner = <span class="keyword">null</span>;</span><br><span class="line">            <span class="comment">// state must be re-read after nulling runner to prevent</span></span><br><span class="line">            <span class="comment">// leaked interrupts</span></span><br><span class="line">            <span class="keyword">int</span> s = state;</span><br><span class="line">            <span class="keyword">if</span> (s &gt;= INTERRUPTING)</span><br><span class="line">                handlePossibleCancellationInterrupt(s);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Executes the computation without setting its result, and then</span></span><br><span class="line"><span class="comment">     * resets this future to initial state, failing to do so if the</span></span><br><span class="line"><span class="comment">     * computation encounters an exception or is cancelled.  This is</span></span><br><span class="line"><span class="comment">     * designed for use with tasks that intrinsically execute more</span></span><br><span class="line"><span class="comment">     * than once.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> &#123;<span class="doctag">@code</span> true&#125; if successfully run and reset</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">boolean</span> <span class="title">runAndReset</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (state != NEW ||</span><br><span class="line">            !RUNNER.compareAndSet(<span class="keyword">this</span>, <span class="keyword">null</span>, Thread.currentThread()))</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">boolean</span> ran = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">int</span> s = state;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Callable&lt;V&gt; c = callable;</span><br><span class="line">            <span class="keyword">if</span> (c != <span class="keyword">null</span> &amp;&amp; s == NEW) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    c.call(); <span class="comment">// don't set result</span></span><br><span class="line">                    ran = <span class="keyword">true</span>;</span><br><span class="line">                &#125; <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                    setException(ex);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            <span class="comment">// runner must be non-null until state is settled to</span></span><br><span class="line">            <span class="comment">// prevent concurrent calls to run()</span></span><br><span class="line">            runner = <span class="keyword">null</span>;</span><br><span class="line">            <span class="comment">// state must be re-read after nulling runner to prevent</span></span><br><span class="line">            <span class="comment">// leaked interrupts</span></span><br><span class="line">            s = state;</span><br><span class="line">            <span class="keyword">if</span> (s &gt;= INTERRUPTING)</span><br><span class="line">                handlePossibleCancellationInterrupt(s);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ran &amp;&amp; s == NEW;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Ensures that any interrupt from a possible cancel(true) is only</span></span><br><span class="line"><span class="comment">     * delivered to a task while in run or runAndReset.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handlePossibleCancellationInterrupt</span><span class="params">(<span class="keyword">int</span> s)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// It is possible for our interrupter to stall before getting a</span></span><br><span class="line">        <span class="comment">// chance to interrupt us.  Let's spin-wait patiently.</span></span><br><span class="line">        <span class="keyword">if</span> (s == INTERRUPTING)</span><br><span class="line">            <span class="keyword">while</span> (state == INTERRUPTING)</span><br><span class="line">                Thread.yield(); <span class="comment">// wait out pending interrupt</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// assert state == INTERRUPTED;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">// We want to clear any interrupt we may have received from</span></span><br><span class="line">        <span class="comment">// cancel(true).  However, it is permissible to use interrupts</span></span><br><span class="line">        <span class="comment">// as an independent mechanism for a task to communicate with</span></span><br><span class="line">        <span class="comment">// its caller, and there is no way to clear only the</span></span><br><span class="line">        <span class="comment">// cancellation interrupt.</span></span><br><span class="line">        <span class="comment">//</span></span><br><span class="line">        <span class="comment">// Thread.interrupted();</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Simple linked list nodes to record waiting threads in a Treiber</span></span><br><span class="line"><span class="comment">     * stack.  See other classes such as Phaser and SynchronousQueue</span></span><br><span class="line"><span class="comment">     * for more detailed explanation.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">WaitNode</span> </span>&#123;</span><br><span class="line">        <span class="keyword">volatile</span> Thread thread;</span><br><span class="line">        <span class="keyword">volatile</span> WaitNode next;</span><br><span class="line">        WaitNode() &#123; thread = Thread.currentThread(); &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Removes and signals all waiting threads, invokes done(), and</span></span><br><span class="line"><span class="comment">     * nulls out callable.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">finishCompletion</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">// assert state &gt; COMPLETING;</span></span><br><span class="line">        <span class="keyword">for</span> (WaitNode q; (q = waiters) != <span class="keyword">null</span>;) &#123;</span><br><span class="line">            <span class="keyword">if</span> (WAITERS.weakCompareAndSet(<span class="keyword">this</span>, q, <span class="keyword">null</span>)) &#123;</span><br><span class="line">                <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">                    Thread t = q.thread;</span><br><span class="line">                    <span class="keyword">if</span> (t != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        q.thread = <span class="keyword">null</span>;</span><br><span class="line">                        LockSupport.unpark(t);</span><br><span class="line">                    &#125;</span><br><span class="line">                    WaitNode next = q.next;</span><br><span class="line">                    <span class="keyword">if</span> (next == <span class="keyword">null</span>)</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    q.next = <span class="keyword">null</span>; <span class="comment">// unlink to help gc</span></span><br><span class="line">                    q = next;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        done();</span><br><span class="line"></span><br><span class="line">        callable = <span class="keyword">null</span>;        <span class="comment">// to reduce footprint</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Awaits completion or aborts on interrupt or timeout.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> timed true if use timed waits</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> nanos time to wait, if timed</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> state upon completion or at timeout</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">int</span> <span class="title">awaitDone</span><span class="params">(<span class="keyword">boolean</span> timed, <span class="keyword">long</span> nanos)</span></span></span><br><span class="line"><span class="function">        <span class="keyword">throws</span> InterruptedException </span>&#123;</span><br><span class="line">        <span class="comment">// The code below is very delicate, to achieve these goals:</span></span><br><span class="line">        <span class="comment">// - call nanoTime exactly once for each call to park</span></span><br><span class="line">        <span class="comment">// - if nanos &lt;= 0L, return promptly without allocation or nanoTime</span></span><br><span class="line">        <span class="comment">// - if nanos == Long.MIN_VALUE, don't underflow</span></span><br><span class="line">        <span class="comment">// - if nanos == Long.MAX_VALUE, and nanoTime is non-monotonic</span></span><br><span class="line">        <span class="comment">//   and we suffer a spurious wakeup, we will do no worse than</span></span><br><span class="line">        <span class="comment">//   to park-spin for a while</span></span><br><span class="line">        <span class="keyword">long</span> startTime = <span class="number">0L</span>;    <span class="comment">// Special value 0L means not yet parked</span></span><br><span class="line">        WaitNode q = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">boolean</span> queued = <span class="keyword">false</span>;</span><br><span class="line">        <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">            <span class="keyword">int</span> s = state;</span><br><span class="line">            <span class="keyword">if</span> (s &gt; COMPLETING) &#123;</span><br><span class="line">                <span class="keyword">if</span> (q != <span class="keyword">null</span>)</span><br><span class="line">                    q.thread = <span class="keyword">null</span>;</span><br><span class="line">                <span class="keyword">return</span> s;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (s == COMPLETING)</span><br><span class="line">                <span class="comment">// We may have already promised (via isDone) that we are done</span></span><br><span class="line">                <span class="comment">// so never return empty-handed or throw InterruptedException</span></span><br><span class="line">                Thread.yield();</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (Thread.interrupted()) &#123;</span><br><span class="line">                removeWaiter(q);</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> InterruptedException();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (q == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (timed &amp;&amp; nanos &lt;= <span class="number">0L</span>)</span><br><span class="line">                    <span class="keyword">return</span> s;</span><br><span class="line">                q = <span class="keyword">new</span> WaitNode();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (!queued)</span><br><span class="line">                queued = WAITERS.weakCompareAndSet(<span class="keyword">this</span>, q.next = waiters, q);</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (timed) &#123;</span><br><span class="line">                <span class="keyword">final</span> <span class="keyword">long</span> parkNanos;</span><br><span class="line">                <span class="keyword">if</span> (startTime == <span class="number">0L</span>) &#123; <span class="comment">// first time</span></span><br><span class="line">                    startTime = System.nanoTime();</span><br><span class="line">                    <span class="keyword">if</span> (startTime == <span class="number">0L</span>)</span><br><span class="line">                        startTime = <span class="number">1L</span>;</span><br><span class="line">                    parkNanos = nanos;</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    <span class="keyword">long</span> elapsed = System.nanoTime() - startTime;</span><br><span class="line">                    <span class="keyword">if</span> (elapsed &gt;= nanos) &#123;</span><br><span class="line">                        removeWaiter(q);</span><br><span class="line">                        <span class="keyword">return</span> state;</span><br><span class="line">                    &#125;</span><br><span class="line">                    parkNanos = nanos - elapsed;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// nanoTime may be slow; recheck before parking</span></span><br><span class="line">                <span class="keyword">if</span> (state &lt; COMPLETING)</span><br><span class="line">                    LockSupport.parkNanos(<span class="keyword">this</span>, parkNanos);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">                LockSupport.park(<span class="keyword">this</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Tries to unlink a timed-out or interrupted wait node to avoid</span></span><br><span class="line"><span class="comment">     * accumulating garbage.  Internal nodes are simply unspliced</span></span><br><span class="line"><span class="comment">     * without CAS since it is harmless if they are traversed anyway</span></span><br><span class="line"><span class="comment">     * by releasers.  To avoid effects of unsplicing from already</span></span><br><span class="line"><span class="comment">     * removed nodes, the list is retraversed in case of an apparent</span></span><br><span class="line"><span class="comment">     * race.  This is slow when there are a lot of nodes, but we don't</span></span><br><span class="line"><span class="comment">     * expect lists to be long enough to outweigh higher-overhead</span></span><br><span class="line"><span class="comment">     * schemes.</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">removeWaiter</span><span class="params">(WaitNode node)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (node != <span class="keyword">null</span>) &#123;</span><br><span class="line">            node.thread = <span class="keyword">null</span>;</span><br><span class="line">            retry:</span><br><span class="line">            <span class="keyword">for</span> (;;) &#123;          <span class="comment">// restart on removeWaiter race</span></span><br><span class="line">                <span class="keyword">for</span> (WaitNode pred = <span class="keyword">null</span>, q = waiters, s; q != <span class="keyword">null</span>; q = s) &#123;</span><br><span class="line">                    s = q.next;</span><br><span class="line">                    <span class="keyword">if</span> (q.thread != <span class="keyword">null</span>)</span><br><span class="line">                        pred = q;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (pred != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        pred.next = s;</span><br><span class="line">                        <span class="keyword">if</span> (pred.thread == <span class="keyword">null</span>) <span class="comment">// check for race</span></span><br><span class="line">                            <span class="keyword">continue</span> retry;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span> <span class="keyword">if</span> (!WAITERS.compareAndSet(<span class="keyword">this</span>, q, s))</span><br><span class="line">                        <span class="keyword">continue</span> retry;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * Returns a string representation of this FutureTask.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@implSpec</span></span></span><br><span class="line"><span class="comment">     * The default implementation returns a string identifying this</span></span><br><span class="line"><span class="comment">     * FutureTask, as well as its completion state.  The state, in</span></span><br><span class="line"><span class="comment">     * brackets, contains one of the strings &#123;<span class="doctag">@code</span> "Completed Normally"&#125;,</span></span><br><span class="line"><span class="comment">     * &#123;<span class="doctag">@code</span> "Completed Exceptionally"&#125;, &#123;<span class="doctag">@code</span> "Cancelled"&#125;, or &#123;<span class="doctag">@code</span></span></span><br><span class="line"><span class="comment">     * "Not completed"&#125;.</span></span><br><span class="line"><span class="comment">     *</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span> a string representation of this FutureTask</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> String status;</span><br><span class="line">        <span class="keyword">switch</span> (state) &#123;</span><br><span class="line">        <span class="keyword">case</span> NORMAL:</span><br><span class="line">            status = <span class="string">"[Completed normally]"</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> EXCEPTIONAL:</span><br><span class="line">            status = <span class="string">"[Completed exceptionally: "</span> + outcome + <span class="string">"]"</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> CANCELLED:</span><br><span class="line">        <span class="keyword">case</span> INTERRUPTING:</span><br><span class="line">        <span class="keyword">case</span> INTERRUPTED:</span><br><span class="line">            status = <span class="string">"[Cancelled]"</span>;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">default</span>:</span><br><span class="line">            <span class="keyword">final</span> Callable&lt;?&gt; callable = <span class="keyword">this</span>.callable;</span><br><span class="line">            status = (callable == <span class="keyword">null</span>)</span><br><span class="line">                ? <span class="string">"[Not completed]"</span></span><br><span class="line">                : <span class="string">"[Not completed, task = "</span> + callable + <span class="string">"]"</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.toString() + status;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// VarHandle mechanics</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> VarHandle STATE;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> VarHandle RUNNER;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> VarHandle WAITERS;</span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            MethodHandles.Lookup l = MethodHandles.lookup();</span><br><span class="line">            STATE = l.findVarHandle(FutureTask.class, <span class="string">"state"</span>, <span class="keyword">int</span>.class);</span><br><span class="line">            RUNNER = l.findVarHandle(FutureTask.class, <span class="string">"runner"</span>, Thread.class);</span><br><span class="line">            WAITERS = l.findVarHandle(FutureTask.class, <span class="string">"waiters"</span>, WaitNode.class);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ReflectiveOperationException e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> Error(e);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Reduce the risk of rare disastrous classloading in first call to</span></span><br><span class="line">        <span class="comment">// LockSupport.park: https://bugs.openjdk.java.net/browse/JDK-8074773</span></span><br><span class="line">        Class&lt;?&gt; ensureLoaded = LockSupport.class;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>FutureTask的具体方法：</p>
+<h2 id="二、线程的常用API"><a href="#二、线程的常用API" class="headerlink" title="二、线程的常用API"></a>二、线程的常用API</h2>
+    </div>
+	<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束     <i class="fa fa-paw"></i>     感谢您的阅读-------------</div>
+    
+</div>
+
+  
+	</div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/java基础/" rel="tag"># java基础</a>
+            
+              <a href="/tags/并发/" rel="tag"># 并发</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+                <a href="/2019/09/15/折腾笔记(01)--搭建个人博客/" rel="prev" title="折腾笔记(01)--搭建个人博客">
+                  折腾笔记(01)--搭建个人博客 <i class="fa fa-chevron-right"></i>
+                </a>
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、线程类"><span class="nav-text">一、线程类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-创建线程"><span class="nav-text">1.1 创建线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Runable接口详解："><span class="nav-text">1.2 Runable接口详解：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-Callable接口详解"><span class="nav-text">1.3 Callable接口详解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-1-Callable源码"><span class="nav-text">1.3.1 Callable源码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-2-Future源码"><span class="nav-text">1.3.2 Future源码</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-3-3-FutureTask源码"><span class="nav-text">1.3.3 FutureTask源码</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、线程的常用API"><span class="nav-text">二、线程的常用API</span></a></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">小潘潘</p>
+  <div class="site-description" itemprop="description">当你失败的时候，说什么都像是借口</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/PanRuijie" title="GitHub &rarr; https://github.com/PanRuijie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="/wsw498858821@126.com" title="E-Mail &rarr; wsw498858821@126.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">小潘潘</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">29k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">27 分钟</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.0</div>
+-->
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+    
+  
+    
+  
+    
+  
+
+  <script>
+  (function() {
+    window.addEventListener('DOMContentLoaded', () => {
+      let script = document.createElement('script');
+      script.src = '/lib/three/three.min.js';
+      document.body.appendChild(script);
+    });
+    let styles = ['/lib/three/three-waves.min.js', '/lib/three/canvas_lines.min.js', '/lib/three/canvas_sphere.min.js'];
+    window.addEventListener('load', () => {
+      styles.forEach(item => {
+        if (item !== '') {
+          let script = document.createElement('script');
+          script.src = item;
+          document.body.appendChild(script);
+        }
+      });
+    });
+  })();
+  </script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
