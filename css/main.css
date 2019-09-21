@@ -1679,7 +1679,7 @@ article:last-child .post-eof {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #2effe8;
+  background: #96e8ff;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -1860,7 +1860,7 @@ article:last-child .post-eof {
   line-height: 1.8;
 }
 .post-toc .nav .nav-child {
-  display: none;
+  display: block;
 }
 .post-toc .nav .active > .nav-child {
   display: block;

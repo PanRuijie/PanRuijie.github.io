@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+
+
+
+
+
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/pan.jpg?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/p.jpg?v=7.4.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/p.jpg?v=7.4.0">
+  <link rel="mask-icon" href="/images/pan.jpg?v=7.4.0" color="#222">
+
+<link rel="stylesheet" href="/css/main.css?v=7.4.0">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2">
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+
+
+<script id="hexo-configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.4.0',
+    exturl: false,
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false},
+    copycode: {"enable":false,"show_result":false,"style":null},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":false},
+    bookmark: {"enable":false,"color":"#222","save":"auto"},
+    fancybox: false,
+    mediumzoom: false,
+    lazyload: false,
+    pangu: false,
+    algolia: {
+      appID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    },
+    localsearch: {"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},
+    path: '',
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    translation: {
+      copy_button: '复制',
+      copy_success: '复制成功',
+      copy_failure: '复制失败'
+    },
+    sidebarPadding: 40
+  };
+</script>
+
+  <meta name="description" content="学习一门语言，从学习其设计思想开始">
+<meta name="keywords" content="java基础">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java基础(01)--Java语言的基础思想">
+<meta property="og:url" content="http://yoursite.com/2019/09/12/Java基础(01)--Java语言的基础思想/index.html">
+<meta property="og:site_name" content="小潘潘的博客">
+<meta property="og:description" content="学习一门语言，从学习其设计思想开始">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-09-21T08:18:57.158Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java基础(01)--Java语言的基础思想">
+<meta name="twitter:description" content="学习一门语言，从学习其设计思想开始">
+  <link rel="canonical" href="http://yoursite.com/2019/09/12/Java基础(01)--Java语言的基础思想/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome: false,
+    isPost: true,
+    isPage: false,
+    isArchive: false
+  };
+</script>
+
+  <title>Java基础(01)--Java语言的基础思想 | 小潘潘的博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">小潘潘的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+      
+      
+      
+        
+        <li class="menu-item menu-item-home">
+      
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-tags">
+      
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-categories">
+      
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-archives">
+      
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+      
+      
+      
+        
+        <li class="menu-item menu-item-about">
+      
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+            
+
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+      <article itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block post">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/09/12/Java基础(01)--Java语言的基础思想/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="小潘潘">
+      <meta itemprop="description" content="当你失败的时候，说什么都像是借口">
+      <meta itemprop="image" content="/images/avatar.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小潘潘的博客">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">Java基础(01)--Java语言的基础思想
+
+          
+        </h1>
+
+        <div class="post-meta">
+			
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              
+                
+              
+
+              <time title="创建时间：2019-09-12 00:00:00" itemprop="dateCreated datePublished" datetime="2019-09-12T00:00:00+08:00">2019-09-12</time>
+            </span>
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2019-09-21 16:18:57" itemprop="dateModified" datetime="2019-09-21T16:18:57+08:00">2019-09-21</time>
+              </span>
+            
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/java基础知识/" itemprop="url" rel="index"><span itemprop="name">java基础知识</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">本文字数：</span>
+              
+              <span>3.3k</span>
+            </span>
+          
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              
+              <span>3 分钟</span>
+            </span>
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>学习一门语言，从学习其设计思想开始</p>
+<a id="more"></a>
+
+
+<h2 id="一、Java语言的面向对象思想"><a href="#一、Java语言的面向对象思想" class="headerlink" title="一、Java语言的面向对象思想"></a>一、Java语言的面向对象思想</h2><h3 id="1-1-面向对象与面向过程"><a href="#1-1-面向对象与面向过程" class="headerlink" title="1.1 面向对象与面向过程"></a>1.1 面向对象与面向过程</h3><p>Java是一种严格的面向对象的语言，其体现在每一个<code>.class</code>文件都必须有一个同名公共类，所有的实现都是基于类的。传统的C语言是一种面向过程的语言，即为了实现一个目标，我们将该目标分割成一个一个的小步骤，每个步骤用一个或者多个函数去进行实现</p>
+<p>举例而言，假如我们想要烹饪一道菜，我们需要的函数可能是准备食材、准备炊具、炒菜、装碟等等，只需要依次调用这些函数就可以实现目标。但是随着我们的系统越来越复杂，不同目标的相互关系也越来越复杂，面向过程的语言无法满足我们的设计需要了。例如我们现在是一家酒店的厨房系统，可能需要烹饪若干道菜，不同菜品之间有着这些那样的关系：有的菜品是其他菜品的辅菜，有的菜品是其他菜品的升级版。另外由于采购的原因，可能我们对于同一道菜在基础食材不一样的情况下烹饪方法有细微差别，这些功能特性只有面向对象的语言才能满足我们的需求</p>
+<p>从本质上来说，面向对象的语言是将现实中的事物抽象成一个一个的对象，每个对象会有自己的属性和方法，属性描述的是对象的状态，方法描述的是对象的能力。想要实现一个目标，就是构造出一个个与该目标相关的对象，然后调用对象的方法进行实现。</p>
+<p>总结面向对象与面向过程的区别与联系：</p>
+<ul>
+<li>面向过程：性能上优于面向对象，并且模块化程度更高更容易理解</li>
+<li>面向对象：可维护性、可扩展性更强</li>
+</ul>
+<h3 id="1-2-面向对象的三大特性"><a href="#1-2-面向对象的三大特性" class="headerlink" title="1.2 面向对象的三大特性"></a>1.2 面向对象的三大特性</h3><p>封装、继承和多态是面向对象的三大特性，Java作为严格的面向对象的语言也是具有这三大特性的。以下基于Java语言的自身特点对三大特性进行讲解</p>
+<h4 id="1-2-1-封装"><a href="#1-2-1-封装" class="headerlink" title="1.2.1 封装"></a>1.2.1 封装</h4><blockquote>
+<p>封装：将对象实现的细节隐藏起来，然后通过一些公用的方法来暴露该对象的功能</p>
+</blockquote>
+<p>封装的好处就是将程序使用者与程序开发者分离。程序的使用者不需要清楚的知道该程序的实现细节和一些不必要的属性，只需要知道输入输出是什么（专业术语为API）即可。这些对于程序使用者来说减少了工作量，对于程序开发者来说屏蔽了程序开发者对程序的改动，使得代码更加安全     </p>
+<p>在 Java中，封装的实现是通过访问权限控制实现封装的，对于不同的属性和方法，用不同的访问权限关键词修饰。</p>
+<p>Java中有三个访问权限修饰符：<code>private</code>、<code>protected</code> 以及 <code>public</code>，如果不加访问修饰符，表示包级可见。因此实际上一共有四个等级的访问权限控制：<code>public</code> &gt; <code>protected</code> &gt; <code>default</code>(包访问权限) &gt; <code>private</code></p>
+<ul>
+<li><code>public</code>： 所修饰的类、变量、方法，在内外包均具有访问权限；</li>
+<li><code>protected</code>： 这种权限是为继承而设计的，protected所修饰的成员，对所有子类是可访问的，但只对同包的类是可访问的，对外包的非子类是不可以访问；</li>
+<li><code>default</code> (包访问权限)： 只对同包的类具有访问的权限，外包的所有类都不能访问；</li>
+<li><code>private</code>： 私有的权限，只对本类的方法可以使用</li>
+</ul>
+<p>一个表格展示不同权限：</p>
+<table>
+<thead>
+<tr>
+<th align="center">访问权限</th>
+<th align="center">本类</th>
+<th align="center">本包的类</th>
+<th align="center">子类</th>
+<th align="center">非子类的外包类</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center"><code>public</code></td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+</tr>
+<tr>
+<td align="center"><code>protected</code></td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">x</td>
+</tr>
+<tr>
+<td align="center"><code>default</code></td>
+<td align="center">√</td>
+<td align="center">√</td>
+<td align="center">x</td>
+<td align="center">x</td>
+</tr>
+<tr>
+<td align="center"><code>private</code></td>
+<td align="center">√</td>
+<td align="center">x</td>
+<td align="center">x</td>
+<td align="center">x</td>
+</tr>
+</tbody></table>
+<p>除此之外，Java还可以通过内部类的机制实现封装，具体的内容到了内部类再进行详解</p>
+<h3 id="1-2-2-继承"><a href="#1-2-2-继承" class="headerlink" title="1.2.2 继承"></a>1.2.2 继承</h3><blockquote>
+<p>继承是指子类拥有父类数据结构的方法和机制，这是类之间的一种关系</p>
+</blockquote>
+<p>继承是类与类的一种关系，是一种“<strong>is a</strong>”的关系。比如“狗”继承“动物”，因为狗<strong>是</strong>动物。</p>
+<p>在Java中，继承是通过类名标签上加<code>extends</code>关键字实现，继承了父类的子类可以直接使用父类除<code>private</code>修改的成员之外所有的成员，并且也可以重写同名方法，改造成符合子类的成员方法</p>
+<p>注意：Java语言对类的规定是只能进行<strong>单继承</strong>，即一个子类只能有一个<strong>直接父类</strong>。而对于接口，允许多继承</p>
+<h3 id="1-2-3-多态"><a href="#1-2-3-多态" class="headerlink" title="1.2.3 多态"></a>1.2.3 多态</h3><blockquote>
+<p>多态性体现在父类中定义的属性和方法被子类继承后，可以具有不同的属性或表现方式</p>
+</blockquote>
+<p>继承是多态的基础。多态的实现需要三个条件：</p>
+<ul>
+<li>要有继承</li>
+<li>要有方法重写</li>
+<li>父类引用指向子类对象</li>
+</ul>
+<p>其中最核心的就是第三条———父类引用指向子类对象。例如我们可以定义<code>Animal a = new Dog();</code>父类声明的是一个动物类型的变量，但却指向的是一个狗类变量，因为狗是动物，它继承了动物类，所以是允许的。如果调用方法时调用了被狗类重写的方法，那么在实现时该变量虽然是一个动物类变量，却产生了狗类变量的作用，此即为多态</p>
+<h2 id="二、Java语言的跨平台特性"><a href="#二、Java语言的跨平台特性" class="headerlink" title="二、Java语言的跨平台特性"></a>二、Java语言的跨平台特性</h2><h3 id="2-1-高级语言的运行机制"><a href="#2-1-高级语言的运行机制" class="headerlink" title="2.1 高级语言的运行机制"></a>2.1 高级语言的运行机制</h3><p>高级语言按程序的执行方式可以分为<strong>编译型</strong>和<strong>解释型</strong>两种</p>
+<ul>
+<li><strong>编译型</strong>语言指的是使用专门的编译器，针对特定平台（即操作系统）将某种高级语言的源代码一次性“翻译”成可被该平台硬件执行的机器码（包括机器指令和操作数），并包装成该平台所能识别的可执行性程序的格式，这个转换过程被称为“编译”（compile）。<ul>
+<li>编译生产的可执行性程序可以脱离开发环境在特定的平台上独立运行（只需要运行环境不需要开发环境）。并且在编译结束之后可以通过链接其他编译好的目</li>
+</ul>
+</li>
+<li><strong>解释型</strong>语言是指使用专门的解释器对源程序逐行解释成特定平台的机器码并立即执行的语言。解释型语言通过不会进行整体性的编译和链接处理，它相当于把编译型语言中的编译和解释的过程混合在一起同时完成<ul>
+<li>与编译型语言相比，解释型语言的运行效率更低，而且不会脱离解释器独立运行，但是跨平台比较容易，只需要提供特定平台的解释器即可，也即以牺牲程序执行效率为代价方便地实现了源程序级的移植</li>
+</ul>
+</li>
+<li>Java的运行机制比较特殊，它既不是纯粹的解释型语言也不是纯粹的编译型语言。Java的源程序必须经过编译步骤，但是不会生成特定平台的机器码，而是生成一种与平台无关的字节码（即<code>.class</code>文件）。这种字节码不是可执行性的，必须有Java解释器来解释执行，然后针对不同平台有对应的Java解释器<ul>
+<li>Java编译器：将Java源文件（<code>.java</code>文件）编译成字节码文件（<code>.class</code>文件，是特殊的二进制文件，二进制字节码文件），这种字节码就是JVM的“机器语言”。javac.exe可以简单看成是Java编译器。</li>
+<li>Java解释器：是JVM的一部分。Java解释器用来解释执行Java编译器编译后的程序。java.exe可以简单看成是Java解释器</li>
+</ul>
+</li>
+</ul>
+<h3 id="2-2-JDK、JVM和JRE"><a href="#2-2-JDK、JVM和JRE" class="headerlink" title="2.2 JDK、JVM和JRE"></a>2.2 JDK、JVM和JRE</h3><p>JDK 、JVM和 JRE 有什么区别？</p>
+<ul>
+<li>JVM是 Java 虚拟机（Java Virtual Machine），只能够识别<code>.class</code>文件，能够将<code>.class</code>文件中的字节码指令进行识别并调用操作系统向上的 API 完成动作</li>
+<li>JRE是Java运行时环境（Java Runtime Environment）,主要包含两个部分，JVM的标准实现和 Java 的一些基本类库。它相对于JVM来说，多出来的是一部分的 Java 类库</li>
+<li>JDK是Java 开发工具包(Java Developerment Kit)，它集成了JRE和一些好用的小工具。例如：javac.exe，java.exe，jar.exe 等</li>
+<li>因此总结来说，三者是逐层包含的关系：JVM被JRE包含，JRE又被JDK包含。反映在目录结构上，就是我们下载安装一个JDK之后，“jdk版本号”这个目录就是JDK，它的子目录bin文件夹就是JVM，而JRE是bin目录加上lib目录</li>
+</ul>
+<h3 id="2-3-Java的跨平台性"><a href="#2-3-Java的跨平台性" class="headerlink" title="2.3 Java的跨平台性"></a>2.3 Java的跨平台性</h3><p>Java为什么能够跨平台，实现一次编写，多处运行？</p>
+<ul>
+<li>Java 能够跨平台运行的核心在于 JVM 。不是 Java 能够跨平台，而是Java程序运行在JVM上，针对不同平台，JVM的实现是不同的</li>
+<li>Java 引入了字节码的概念，JVM 能够识别字节码，并将它们解释到系统的 API 调用。针对不同的系统有不同的JVM实现，但是同一段代码在编译后的字节码是一样的。在 Java API 层面，我们调用系统声音设备的代码是唯一的，和系统无关，编译生成的字节码也是唯一的。但是同一段字节码，在不同的 jvm 实现上会映射到不同系统的 API 调用，从而实现代码的不加修改即可跨平台运行</li>
+</ul>
+
+    </div>
+	<div>
+  
+    <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束     <i class="fa fa-paw"></i>     感谢您的阅读-------------</div>
+    
+</div>
+
+  
+	</div>
+
+    
+    
+    
+        
+      
+
+      <footer class="post-footer">
+          
+            
+          
+          <div class="post-tags">
+            
+              <a href="/tags/java基础/" rel="tag"><i class="fa fa-tag"></i>java基础</a>
+            
+          </div>
+        
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-next post-nav-item">
+              
+                <a href="/2019/09/11/Java并发编程(01)--详解Thread/" rel="next" title="Java并发编程(01)--详解Thread">
+                  <i class="fa fa-chevron-left"></i> Java并发编程(01)--详解Thread
+                </a>
+              
+            </div>
+
+            <span class="post-nav-divider"></span>
+
+            <div class="post-nav-prev post-nav-item">
+              
+            </div>
+          </div>
+        
+      </footer>
+    
+  </div>
+  
+  
+  
+  </article>
+
+  </div>
+
+
+          </div>
+          
+
+        </div>
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+        
+        
+        
+        
+      
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、Java语言的面向对象思想"><span class="nav-text">一、Java语言的面向对象思想</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-面向对象与面向过程"><span class="nav-text">1.1 面向对象与面向过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-面向对象的三大特性"><span class="nav-text">1.2 面向对象的三大特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-继承"><span class="nav-text">1.2.2 继承</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-多态"><span class="nav-text">1.2.3 多态</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Java语言的跨平台特性"><span class="nav-text">二、Java语言的跨平台特性</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-高级语言的运行机制"><span class="nav-text">2.1 高级语言的运行机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-JDK、JVM和JRE"><span class="nav-text">2.2 JDK、JVM和JRE</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Java的跨平台性"><span class="nav-text">2.3 Java的跨平台性</span></a></li></ol></li></ol></div>
+        
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image"
+      src="/images/avatar.jpeg"
+      alt="小潘潘">
+  <p class="site-author-name" itemprop="name">小潘潘</p>
+  <div class="site-description" itemprop="description">当你失败的时候，说什么都像是借口</div>
+</div>
+  <nav class="site-state motion-element">
+      <div class="site-state-item site-state-posts">
+        
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-categories">
+        
+          
+            <a href="/categories/">
+          
+        
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">分类</span>
+        </a>
+      </div>
+    
+      
+      
+      <div class="site-state-item site-state-tags">
+        
+          
+            <a href="/tags/">
+          
+        
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">标签</span>
+        </a>
+      </div>
+    
+  </nav>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="https://github.com/PanRuijie" title="GitHub &rarr; https://github.com/PanRuijie" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+    
+      <span class="links-of-author-item">
+      
+      
+        
+      
+      
+        
+      
+        <a href="/wsw498858821@126.com" title="E-Mail &rarr; wsw498858821@126.com"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+    
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">小潘潘</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">33k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">30 分钟</span>
+</div>
+
+<!--
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0</div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.4.0</div>
+-->
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+  </div>
+
+  
+
+
+  <script src="/lib/anime.min.js?v=3.1.0"></script>
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+<script src="/js/utils.js?v=7.4.0"></script><script src="/js/motion.js?v=7.4.0"></script>
+<script src="/js/schemes/pisces.js?v=7.4.0"></script>
+
+<script src="/js/next-boot.js?v=7.4.0"></script>
+
+    
+  
+    
+  
+    
+  
+
+  <script>
+  (function() {
+    window.addEventListener('DOMContentLoaded', () => {
+      let script = document.createElement('script');
+      script.src = '/lib/three/three.min.js';
+      document.body.appendChild(script);
+    });
+    let styles = ['/lib/three/three-waves.min.js', '/lib/three/canvas_lines.min.js', '/lib/three/canvas_sphere.min.js'];
+    window.addEventListener('load', () => {
+      styles.forEach(item => {
+        if (item !== '') {
+          let script = document.createElement('script');
+          script.src = item;
+          document.body.appendChild(script);
+        }
+      });
+    });
+  })();
+  </script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
